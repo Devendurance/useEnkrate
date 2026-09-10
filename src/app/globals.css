@@ -1,26 +1,151 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/*
+ * Enkrate design tokens, sourced from DESIGN.md (v alpha).
+ * White canvas, saturated indigo, rare Guard Lime, off-black chrome,
+ * editorial serif display + functional sans + mono metadata.
+ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Primary palette */
+  --color-primary: #0f1596;
+  --color-primary-deep: #060a4d;
+  --color-canvas: #ffffff;
+  --color-surface: #f7f6f2;
+  --color-ink: #0a0a0a;
+  --color-ink-900: #1a1a1a;
+  --color-ink-700: #4a4946;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Accent + status */
+  --color-accent: #d4ff4d;
+  --color-accent-pressed: #b0e01a;
+  --color-muted: #9a9890;
+  --color-line: #e7e5df;
+  --color-line-disabled: #c7c5be;
+  --color-link-hover: #0b0f73;
+  --color-reject: #c0392b;
+
+  /* Typography */
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans: "General Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: var(--font-space-mono), "Courier New", monospace;
+
+  /* Radius scale */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-card: 16px;
+  --radius-feature: 20px;
+  --radius-highlight: 24px;
+
+  /* Elevation */
+  --shadow-subtle: 0 1px 2px rgba(10, 10, 10, 0.04);
+  --shadow-base: 0 4px 12px rgba(10, 10, 10, 0.08);
+  --shadow-medium: 0 12px 24px rgba(10, 10, 10, 0.14);
+  --shadow-high: 0 20px 40px rgba(10, 10, 10, 0.25);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+@keyframes stock-ticker-loop {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.stock-ticker-track {
+  animation: stock-ticker-loop 30s linear infinite;
+  will-change: transform;
+}
+
+.hero-background-video {
+  display: block;
+}
+
+.hero-support-copy {
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.96),
+    0 0 14px rgba(255, 255, 255, 0.72);
+}
+
+/* The landing page keeps the document scrollable while hiding only its chrome. */
+html.landing-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html.landing-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-background-video,
+  html.landing-reduced-motion .hero-background-video {
+    display: none;
+  }
+
+  .stock-ticker-track {
+    animation: none;
+    transform: none;
+  }
+
+  html.landing-scroll .landing-hero {
+    position: static;
+  }
+
+  html.landing-scroll .landing-sheet {
+    transform: none !important;
+  }
+}
+
+html.landing-reduced-motion .hero-background-video {
+  display: none;
+}
+
+/*
+ * Guarded Route flow, a subtle dash movement along the indigo path.
+ * Reduced-motion users get a static route with the same labels and sequence.
+ */
+@keyframes route-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+.route-flow {
+  stroke-dasharray: 6 6;
+  animation: route-flow 1.4s linear infinite;
+}
+
+@keyframes passport-flow {
+  to {
+    stroke-dashoffset: -32;
+  }
+}
+
+.passport-flow {
+  stroke-dasharray: 8 8;
+  animation: passport-flow 2.2s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-flow {
+    animation: none;
+    stroke-dasharray: none;
+  }
+
+  .passport-flow {
+    animation: none;
+    stroke-dasharray: none;
+  }
 }

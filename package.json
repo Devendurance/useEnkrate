@@ -6,9 +6,18 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "verify:mainnet-route": "tsx scripts/verify-mainnet-route.ts",
+    "verify:phase0b-fork": "tsx scripts/run-phase0b-fork.ts",
+    "verify:phase1a-fork": "tsx scripts/run-phase1a-fork.ts",
+    "deploy:mainnet": "forge fmt --root contracts --check && forge build --root contracts && forge test --root contracts && tsx scripts/deploy-mainnet.ts"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
+    "gsap": "^3.15.0",
+    "lenis": "^1.3.26",
+    "lucide-react": "^1.41.0",
     "next": "16.3.4",
     "react": "19.2.8",
     "react-dom": "19.2.8"
@@ -18,9 +27,12 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "tsx": "^4.23.13",
+    "typescript": "^5",
+    "viem": "^2.56.3"
   }
 }

@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Vendored Foundry dependencies and Solidity workspaces are not part of the Next.js app.
+    "lib/**",
+    "contracts/**",
+    "fork-harness/**",
   ]),
 ]);
 

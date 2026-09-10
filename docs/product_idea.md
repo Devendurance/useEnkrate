@@ -1,137 +1,274 @@
-# ApexStock (AegisFi): Your Wealth on Autopilot, with Built-in Seatbelts
+# Enkrate — Product Idea
 
-> **A non-technical guide to understanding the next generational breakthrough in onchain finance on Base.**
+**Descriptor:** Programmable execution with onchain guardrails.  
+**Tagline:** *Autopilot, within your rules.*  
+**Hackathon focus:** Coinbase Tokenized Stocks on Base  
+**Submission network:** Base Mainnet
 
 ---
 
 ## 1. The 10-Second Pitch
 
-**ApexStock (AegisFi)** is an automated investing and risk-protection engine for Coinbase Tokenized Stocks on Base. 
+**Enkrate lets eligible users set recurring or conditional rules for Coinbase Tokenized Stocks on Base, then executes only when the user's B20-specific guardrails and real onchain settlement limits pass.**
 
-It allows anyone in the world outside the United States to put their US stock investments on **autopilot** (like auto-investing a slice of every paycheck into Apple or the S&P 500) while adding **mathematical seatbelts** that protect them from bad prices, market crashes, and rogue bots.
-
----
-
-## 2. The Problem in Plain English
-
-### The "Ferrari Without an Engine" Paradox
-Coinbase recently brought tokenized US stocks (like Nvidia, Apple, and Tesla) directly onchain to Base. For the first time in history, someone living in Argentina, Nigeria, Vietnam, or Germany can own a piece of the world's most valuable tech companies using digital dollars (USDC) on their phone. No paperwork, no $45 bank wire fees, and no waiting weeks for approval.
-
-**Here is the massive problem nobody is talking about:**
-Today, these tokenized stocks are **completely dumb bricks**. They just sit in your digital wallet doing nothing.
-
-* **In Traditional Web2 Finance** (apps like Robinhood, Cash App, or Acorns), you don’t have to stare at a screen all day. You can say: *"Every Friday when I get paid, put $25 into the S&P 500"* or *"Round up my coffee change into tech stocks."* The app does the work for you.
-* **In Crypto Today**, there is **zero autopilot**. If you want to invest, you have to remember to log in, calculate prices, sign transactions, and do it all over again every week. 80% of regular people give up after two weeks because life gets in the way.
-
-### The Midnight Timezone Trap
-Crypto never sleeps—it runs 24 hours a day, 7 days a week. But the real New York Stock Exchange is only open from **9:30 AM to 4:00 PM Eastern Time**.
-
-If you live in Tokyo, Singapore, or Manila, the US market is open in the middle of the night. If Nvidia releases an explosive earnings report after hours:
-- Traditional US traders can manage their positions.
-- International crypto users wake up at 7:00 AM, try to buy onchain, and get **crushed by terrible prices, outdated market data, or predatory automated bots** because the real market in New York was closed and nobody warned them.
-
-### The Fear of Letting Go
-Why don’t regular people use trading bots in crypto right now? **Because they are terrified.**
-To use an automated bot today, you usually have to hand over your secret passwords or give the bot unlimited access to drain your wallet. If the bot makes a mistake, gets hacked, or market prices glitch, your life savings can disappear in seconds.
+Think less “trading bot,” more **programmable stock order with a contract-enforced boundary**.
 
 ---
 
-## 3. The Big Vision: "Acorns with Seatbelts for the Entire World"
+## 2. Why This Exists
 
-ApexStock solves this with two simple ideas working together:
+Coinbase Tokenized Stocks make equities programmable and tradable onchain. But putting a stock on Base does not automatically give a user a good automation experience.
 
-1. **The Autopilot (Apex Engine)**: You define what you want to happen once, and it runs in the background forever without taking custody of your money.
-2. **The Seatbelt (Aegis Shield)**: A smart, un-hackable set of safety rules that stops bad trades before they can hurt you.
+A user still has to choose between:
 
+- manually repeating the same stock swap; or
+- delegating execution to software and trusting it not to exceed their intent.
+
+Tokenized equities also introduce state that generic crypto automation can mishandle:
+
+- B20 assets are identified canonically by address;
+- their economic share ratio can change through multipliers;
+- Coinbase/Chainlink reference feeds are 24/5 while onchain markets can remain active;
+- corporate actions can freeze the official reference without globally freezing B20 transfers;
+- transfer/policy state can matter even when an ERC-20 allowance exists.
+
+Enkrate makes those facts part of the execution path.
+
+---
+
+## 3. The Product
+
+A user creates one of two rules.
+
+### Recurring
+
+> “Every Friday, buy $25 of NVDAc. Never spend more than $100 in 24 hours. Maximum 1% slippage.”
+
+### Conditional
+
+> “Buy $25 of NVDAc if the actual execution can fill at or below my price. Expire next Wednesday. If the traditional reference is aged, only continue if the onchain price remains inside my deviation limit.”
+
+Enkrate then monitors the rule and checks:
+
+- Is this the canonical Coinbase B20 asset?
+- Is the issuer oracle registry in a corporate-action pause?
+- Is the rule active and unexpired?
+- Is the user still inside the configured spend boundary?
+- Is the Coinbase reference current enough for the selected mode?
+- If the reference is aged, did the user explicitly permit that regime?
+- Is the real Base quote sufficiently close to the last official reference?
+- Will the user receive at least the minimum stock amount?
+- Does the actual execution price satisfy the conditional trigger?
+
+If not, it waits or blocks.
+
+If yes, the swap executes and the B20 lands in the user's wallet.
+
+---
+
+## 4. The Key Insight: 24/7 Stock Trading Needs Two Different Kinds of Truth
+
+Coinbase B20 markets can be active onchain while the official underlying-equity reference is not continuously updating.
+
+That means a naive rule like:
+
+```text
+oracle older than 15 minutes → reject
 ```
-                          YOUR WALLET (USDC)
-                                  │
-                                  ▼
-                    ┌───────────────────────────┐
-                    │   APEX AUTOPILOT RULES    │
-                    │   "Every payday, invest   │
-                    │    15% into S&P & NVDA"   │
-                    └─────────────┬─────────────┘
-                                  │
-                                  ▼
-                    ┌───────────────────────────┐
-                    │   AEGIS DIGITAL SEATBELT  │
-                    │   - Is the market open?   │
-                    │   - Is the price real?    │
-                    │   - Under $100 budget?    │
-                    └─────────────┬─────────────┘
-                                  │ (Only passes if 100% safe)
-                                  ▼
-                   COINBASE TOKENIZED STOCKS (BASE)
+
+is wrong for this asset class.
+
+Enkrate distinguishes:
+
+### Corporate-action hold
+
+Coinbase's oracle registry is paused.
+
+**Behavior:** hard block. The official price is intentionally frozen while the issuer synchronizes the underlying price and B20 multiplier.
+
+### Current/acceptable reference
+
+The reference is acceptable under the user's normal execution policy.
+
+**Behavior:** use normal route/slippage constraints.
+
+### Aged reference
+
+The registry is not in a corporate-action hold, but `updatedAt` is old.
+
+**Behavior:**
+
+- no user opt-in → wait;
+- user opted in → last reference becomes an anchor, while real onchain execution must remain inside a stricter deviation/min-output boundary.
+
+Enkrate does not pretend an old 24/5 reference is a live 24/7 stock price.
+
+---
+
+## 5. Why This Is More Than a Generic Limit Order
+
+1inch already supports RWA swaps and orders. Enso already aggregates B20 execution. Enkrate should not compete with them as another router.
+
+Instead:
+
+- **1inch / Enso answer:** “How do I execute this swap?”
+- **Enkrate answers:** “Is this specific programmed B20 action still permitted under the user's rule and the stock's current issuer/reference state?”
+
+Enkrate can use existing liquidity infrastructure underneath it.
+
+---
+
+## 6. Why B20 Matters
+
+Without Coinbase B20, much of Enkrate would degrade into generic crypto automation.
+
+The B20-specific moat is the combination of:
+
+- canonical asset registry;
+- B20 multiplier/corporate-action semantics;
+- Coinbase oracle-registry pause;
+- 24/5 total-return reference behavior;
+- B20 transfer/policy preflight;
+- 24/7 onchain execution against real stock liquidity.
+
+That is what the product must visibly demonstrate.
+
+---
+
+## 7. Real Hackathon User Flow
+
+```text
+Connect Base wallet
+   ↓
+Choose real B20 stock
+   ↓
+Create recurring or conditional rule
+   ↓
+Set amount + spend limit + slippage + reference preference
+   ↓
+Approve finite USDC budget
+   ↓
+Rule becomes Active — Monitoring
+   ↓
+Keeper reads real B20/Chainlink/registry state
+   ↓
+Keeper gets real route + simulates execution
+   ↓
+WAIT / HOLD / BLOCK
+or
+EXECUTE
+   ↓
+Real B20 arrives in wallet
+   ↓
+Mainnet receipt
 ```
 
 ---
 
-## 4. The 4 Core Features (Explained Simply)
+## 8. The Three Hackathon Proof Moments
 
-### 1. Paycheck-to-Portfolio (Set & Forget)
-You connect your wallet once and set a rule: 
-> *"Whenever I receive USDC in my wallet (salary, freelance payout, or savings), automatically route 15% into my US stock portfolio."*
+### Moment 1 — The rule is real
 
-Your money stays in your own wallet until the exact second of the trade. You never have to log in to push buttons again.
+Create a rule on Base Mainnet and show its immutable boundaries.
 
-### 2. The Night Shield (Timezone Protection)
-You can set smart orders that only execute when conditions are safe:
-> *"Buy $100 of Nvidia if the price drops by 4%, but ONLY if the New York market is open and the price feed has been updated in the last 15 minutes."*
+### Moment 2 — Failure is understandable
 
-If the market is frozen over the weekend or data is old, the system refuses to let the trade happen. You sleep like a baby.
+Show Enkrate refusing to broadcast because a real rule condition or execution constraint fails. The UI explains the exact reason.
 
-### 3. The Digital Seatbelt (Spending Limits)
-Think of this like a daily withdrawal limit on your debit card:
-> *"No matter what happens, never allow more than $200 of trades per day, and never touch any tokens except official Coinbase stocks."*
+### Moment 3 — The stock actually settles
 
-Even if an AI bot goes crazy or an automated keeper gets hacked, **the contract code mathematically blocks them from spending more than your allowance.**
-
-### 4. 1-Click Strategy Playbooks (Social Investing)
-See a smart investing playbook created by someone you trust (e.g. *"The All-Weather Tech & Defensive Basket"* or *"The Weekly S&P 500 Dollar-Cost Averager"*)?
-You can clone their playbook into your own wallet with a single click. You maintain complete custody of your funds, and the creator gets a tiny fraction of a cent reward for sharing their ideas.
+A small real USDC → Coinbase B20 transaction succeeds through the approved adapter, and the product displays the actual Base transaction and received stock balance.
 
 ---
 
-## 5. Real-Life Stories: Who Uses This?
+## 9. Existing Product Surfaces
 
-### Carlos in Buenos Aires (The Freelance Developer)
-* **His Reality**: Carlos earns $2,000 USDC a month coding for international clients. In Argentina, the local currency loses half its value every year. Carlos keeps his money in USDC, but he knows cash loses value to inflation too.
-* **How He Uses ApexStock**: Carlos sets up a rule: Every 1st and 15th of the month, $150 USDC automatically buys fractional shares of the S&P 500 and Apple. He doesn't think about it, he doesn't pay international bank fees, and his savings grow alongside the world's greatest companies.
+### Overview
+Portfolio state + rule state + B20 reference health.
 
-### Mei-Ling in Singapore (The Cross-Timezone Trader)
-* **Her Reality**: Mei-Ling loves trading tech stocks, but New York market hours correspond to 10:30 PM – 5:00 AM Singapore time.
-* **How She Uses ApexStock**: She sets conditional orders before going to bed. If a stock hits her dip-target while she is asleep, ApexStock's keeper executes it for her—with guaranteed price checks so she never wakes up to a nasty surprise.
+### Rules
+Create and manage recurring/conditional rules.
 
-### David in Lagos (The Neobank Founder)
-* **His Reality**: David runs a mobile finance app in Nigeria with 50,000 young users who want to invest in US equities. David doesn't have 6 months and $200,000 to build trading algorithms and security engines from scratch.
-* **How He Uses ApexStock**: David's team connects their mobile app to ApexStock's engine behind the scenes. His users get a sleek "Save in Stocks" button on their phone that works safely and automatically on Base.
+### Playbooks
+Rule templates, not a marketplace.
 
----
+### Receipts
+Successful mainnet executions plus separately labeled evaluation history.
 
-## 6. Why Base & Coinbase Need This
-
-Coinbase took the hardest, most regulated step by legally tokenizing US equities and bringing them onchain to Base.
-
-**Now Base needs an ecosystem layer that makes people actually USE them.**
-
-Without ApexStock, tokenized stocks will just sit in wallets as static speculative trophies. With ApexStock:
-1. **Steady, Daily Volume**: Millions of dollars in automated recurring purchases flow into Coinbase Tokenized Stocks every week.
-2. **USDC Stickiness**: Emerging market users keep their USDC on Base because their automated investment rules live here.
-3. **World-Class User Safety**: Base becomes known as the safest chain for real-world asset trading, thanks to the built-in Aegis risk guardrail.
+### Guardrail Status
+Canonical B20 identity, multiplier, issuer pause, reference value/time, authorization, route health.
 
 ---
 
-## 7. How We Win the Base Builder Quests Hackathon
+## 10. What We Are Deliberately Not Building Before September 9
 
-Judges look for projects that are:
-1. **Directly answering the prompt**: We are building the native execution layer for Coinbase Tokenized Stocks.
-2. **Real and usable**: Not a fake demo or toy game, but a real financial utility that solves an urgent, unsolved problem.
-3. **Safe and compliant**: Built specifically for eligible non-US users, respecting all Coinbase regulatory standards.
-4. **Visually stunning**: A clean, intuitive dashboard where any judge or user can set up an autopilot rule in under 60 seconds.
+- Naira rail
+- generic brokerage
+- AI stock picker
+- natural-language agent
+- personalized index
+- stock rewards
+- event/prediction triggers
+- paycheck trigger
+- lending product
+- strategy marketplace
+- new DEX
+- testnet demo universe
+
+Those are distractions until the core rule → guard → execution → receipt path is real.
 
 ---
 
-## 8. Summary
+## 11. Future Product Expansion
 
-ApexStock (AegisFi) bridges the gap between the speed of crypto and the discipline of traditional wealth building. It gives ordinary people around the globe access to the same automated, risk-protected financial superpowers that Wall Street institutions take for granted.
+The architecture can later support additional triggers:
+
+```text
+TRIGGERS
+• time
+• price
+• incoming USDC
+• verified external event
+
+        ↓
+ENKRATE GUARD
+
+        ↓
+ACTIONS
+• buy / sell B20
+• allocate
+• later: borrow / repay against supported collateral
+```
+
+The hackathon only proves the first two triggers and stock purchase execution.
+
+---
+
+## 12. Positioning
+
+### Homepage
+
+**Put your tokenized-stock rules on autopilot. Keep the control.**
+
+Set a recurring or conditional rule. Enkrate executes only inside the stock, price, reference, slippage and spending boundaries you chose.
+
+### Judge explanation
+
+> “Coinbase made stocks programmable on Base. Enkrate makes the execution programmable too — without turning the user's wallet into a blank cheque.”
+
+---
+
+## 13. Eligibility
+
+Coinbase Tokenized Stocks are only available to persons in eligible jurisdictions outside the United States. Enkrate must not enable or market U.S.-resident trading in the submitted experience.
+
+---
+
+## 14. Primary Sources
+
+- https://docs.base.org/specifications/b20/tokenized-stocks-on-base
+- https://docs.chain.link/data-feeds/tokenized-equity-feeds/coinbase
+- https://blog.base.org/tokenized-stocks
+- https://blog.base.org/request-for-builders-tokenized-stocks
+- https://blog.enso.build/enso-expands-tokenized-stock-infrastructure-on-base/
+- https://1inch.com/blog/post/coinbase-tokenized-stocks
