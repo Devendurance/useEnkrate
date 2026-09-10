@@ -13,7 +13,9 @@
  * deployments are the asset registry and execution engine.
  */
 import "dotenv/config";
+import { readFileSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
+import { resolve } from "node:path";
 import { createPublicClient, createWalletClient, fallback, formatEther, getContractAddress, http, type Address, type TransactionReceipt } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 
@@ -51,6 +53,10 @@ async function getL1Fee(publicClient: any, hash: `0x${string}`) {
   return receipt.l1Fee ? BigInt(receipt.l1Fee) : 0n;
 }
 
+function loadArtifact(relativePath: string) {
+  return JSON.parse(readFileSync(resolve(process.cwd(), relativePath), "utf8"));
+}
+
 async function main() {
   const privateKey = process.env.DEPLOYER_PRIVATE_KEY;
   if (!privateKey || !/^0x[0-9a-fA-F]{64}$/.test(privateKey)) {
@@ -69,8 +75,8 @@ async function main() {
   console.log(`Base chain ID: ${chainId}`);
   console.log(`ETH balance before: ${formatEther(balanceBefore)} ETH`);
 
-  const registryArtifact = await import("../contracts/out/EnkrateAssetRegistry.sol/EnkrateAssetRegistry.json");
-  const engineArtifact = await import("../contracts/out/EnkrateExecutionEngine.sol/EnkrateExecutionEngine.json");
+  const registryArtifact = loadArtifact("contracts/out/EnkrateAssetRegistry.sol/EnkrateAssetRegistry.json");
+  const engineArtifact = loadArtifact("contracts/out/EnkrateExecutionEngine.sol/EnkrateExecutionEngine.json");
   const deployedAt = new Date().toISOString();
   const expectedRegistryAddress = getContractAddress({ from: account.address, nonce: 0n });
   const existingRegistryCode = await publicClient.getCode({ address: expectedRegistryAddress });

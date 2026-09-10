@@ -17,9 +17,12 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-    title: "Enkrate | Programmable execution with onchain guardrails",
+  title: "Enkrate | Programmable execution with onchain guardrails",
   description:
     "Set a recurring or conditional rule once. Enkrate executes only when your price, market-session, data-freshness, slippage, and daily-limit checks pass.",
+  other: {
+    "base:app_id": "6aa22a02fa92e96bd08c5b2d",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
